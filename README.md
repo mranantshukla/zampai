@@ -18,6 +18,8 @@ The AjitRawat original images are in `dataset_images/`. `dataset_cache.json` hol
 Use Python 3.12. From this directory:
 
 ```powershell
+# Use the local SQLite database if a placeholder PostgreSQL URL is set in this shell.
+Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue
 python -m pip install -r requirements.txt
 python asa_dashboard.py --port 8766
 ```

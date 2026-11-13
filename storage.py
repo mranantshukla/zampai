@@ -7,12 +7,22 @@ import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 from sqlalchemy import (create_engine, MetaData, Table, Column, String, DateTime,
                         LargeBinary, Integer, Text, ForeignKey, select, insert, update, text)
 
 ROOT = Path(__file__).parent
-url = os.getenv("DATABASE_URL") or "sqlite:///" + str(ROOT / "asa_local.db").replace("\\", "/")
+raw_database_url = os.getenv("DATABASE_URL", "").strip()
+if raw_database_url:
+    parsed_url = urlparse(raw_database_url)
+    if (parsed_url.hostname or "").upper() in {"HOST", "YOUR_HOST", "DATABASE_HOST"}:
+        raise RuntimeError(
+            "DATABASE_URL still contains a placeholder host. For local use, run "
+            "Remove-Item Env:DATABASE_URL and start the dashboard again; "
+            "for PostgreSQL, replace HOST with the real database hostname."
+        )
+url = raw_database_url or "sqlite:///" + str(ROOT / "asa_local.db").replace("\\", "/")
 if url.startswith("postgres://"):
     url = "postgresql://" + url[len("postgres://"):]
 if url.startswith("postgresql://"):
